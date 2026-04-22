@@ -14,10 +14,28 @@ object AssetExtractor {
         val filesDir = context.filesDir
         val binaryFile = File(filesDir, BINARY_NAME)
 
-        // Check if binary already exists and is executable
-        if (binaryFile.exists() && binaryFile.canExecute()) {
-            LogCat.d("Cloudflared binary already extracted and executable")
-            return binaryFile
+        // If the binary already exists, make sure it is executable
+        if (binaryFile.exists()) {
+            if (binaryFile.canExecute()) {
+                LogCat.d("Cloudflared binary already extracted and executable")
+                return binaryFile
+            }
+
+            if (binaryFile.setExecutable(true, false) || binaryFile.canExecute()) {
+                LogCat.d("Cloudflared binary marked executable after existence check")
+                return binaryFile
+            }
+
+            try {
+                Runtime.getRuntime().exec(arrayOf("chmod", "755", binaryFile.absolutePath)).waitFor()
+            } catch (e: IOException) {
+                LogCat.e("Failed to chmod existing cloudflared binary: ${e.message}")
+            }
+
+            if (binaryFile.canExecute()) {
+                LogCat.d("Cloudflared binary executable after chmod")
+                return binaryFile
+            }
         }
 
         return try {
@@ -29,7 +47,13 @@ object AssetExtractor {
             }
 
             // Make executable
-            binaryFile.setExecutable(true)
+            if (!binaryFile.setExecutable(true, false)) {
+                Runtime.getRuntime().exec(arrayOf("chmod", "755", binaryFile.absolutePath)).waitFor()
+            }
+
+            if (!binaryFile.canExecute()) {
+                throw IOException("Failed to set executable permission on cloudflared")
+            }
 
             LogCat.d("Cloudflared binary extracted and made executable: ${binaryFile.absolutePath}")
             binaryFile

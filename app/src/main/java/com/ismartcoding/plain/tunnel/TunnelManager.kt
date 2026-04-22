@@ -24,6 +24,9 @@ import java.util.Locale
 object TunnelManager {
     private const val TOKEN = "eyJhIjoiNzk4MDRjYzVhNTdhMGFjZTVkZDA4NmZhMDdkOTc2NTAiLCJ0IjoiODhiNjc0MTMtNjUyMi00YTMyLWJiZjItYTc4NmMxNjc3ZWU5IiwicyI6IllXVTVOVFUzTm1RdFlUWXhaQzAwTkdZMExUbGhaVGt0TkRVNVpXWmtZV0ptTmpoaSJ9"
 
+    val maskedToken: String
+        get() = "Token: ${TOKEN.take(6)}...${TOKEN.takeLast(4)}"
+
     private var process: Process? = null
     private var job: Job? = null
     private var isRunning = false
