@@ -35,6 +35,7 @@ class MainViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
     var ip4s by savedStateHandle.saveable { mutableStateOf(emptyList<String>()) }
     var ip4 by savedStateHandle.saveable { mutableStateOf("") }
     var currentRootTab by savedStateHandle.saveable { mutableIntStateOf(0) }
+    var tunnelEnabled by savedStateHandle.saveable { mutableStateOf(false) }
 
     fun enableHttpServer(
         context: Context,
@@ -99,5 +100,33 @@ class MainViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
                 enableHttpServer(context, true)
             }
         }
+    }
+
+    fun enableTunnel(context: Context, enable: Boolean) {
+        viewModelScope.launch {
+            tunnelEnabled = enable
+            if (enable) {
+                // Ensure web server is running first
+                if (httpServerState != HttpServerState.ON) {
+                    enableHttpServer(context, true)
+                    // Wait for server to start
+                    delay(2000)
+                }
+
+                // Start tunnel
+                withIO {
+                    com.ismartcoding.plain.tunnel.TunnelManager.startTunnel(context)
+                }
+            } else {
+                // Stop tunnel
+                withIO {
+                    com.ismartcoding.plain.tunnel.TunnelManager.stopTunnel()
+                }
+            }
+        }
+    }
+
+    fun syncTunnelState() {
+        tunnelEnabled = com.ismartcoding.plain.tunnel.TunnelManager.isTunnelRunning
     }
 }

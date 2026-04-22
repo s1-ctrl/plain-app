@@ -162,6 +162,11 @@
         </service>
 
         <service
+            android:name=".tunnel.TunnelService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <service
             android:name=".services.AudioPlayerService"
             android:enabled="true"
             android:exported="true"

@@ -64,13 +64,17 @@ object HttpModule {
         }
 
         install(CORS) {
-            if (BuildConfig.DEBUG) {
-                allowHost("*")
-            } else {
-                allowHost("localhost:3000")
-                allowHost("127.0.0.1:3000")
-            }
+            allowHost("app.shakti.buzz")
+            allowHost("*")
             allowHeadersPrefixed("c-")
+            allowMethod(io.ktor.http.HttpMethod.Options)
+            allowMethod(io.ktor.http.HttpMethod.Get)
+            allowMethod(io.ktor.http.HttpMethod.Post)
+            allowMethod(io.ktor.http.HttpMethod.Put)
+            allowMethod(io.ktor.http.HttpMethod.Delete)
+            allowHeader(io.ktor.http.HttpHeaders.Authorization)
+            allowHeader(io.ktor.http.HttpHeaders.ContentType)
+            allowCredentials = true
         }
 
         install(ConditionalHeaders)
@@ -93,6 +97,17 @@ object HttpModule {
                 call.respond(HttpStatusCode.NotFound)
                 return@intercept finish()
             }
+
+            // Check for secret key on external requests
+            val host = call.request.origin.remoteHost
+            val key = call.request.queryParameters["key"]
+            val isLocal = host == "localhost" || host == "127.0.0.1" || host.startsWith("192.168.") || host.startsWith("10.")
+
+            if (!isLocal && key != "SECRET123") {
+                call.respond(HttpStatusCode.Forbidden, "Access denied. Use ?key=SECRET123")
+                return@intercept finish()
+            }
+
             call.response.headers.append("X-Server-Time", System.currentTimeMillis().toString())
         }
 
@@ -130,11 +145,15 @@ object HttpModule {
 
             get("/shutdown") {
                 val ip = call.request.origin.remoteHost
-                LogCat.d("$ip is shutting down the server")
-                if (ip != "localhost") {
+                val key = call.request.queryParameters["key"]
+
+                // Allow shutdown from localhost or with secret key
+                if (ip != "localhost" && ip != "127.0.0.1" && key != "SECRET123") {
                     call.respond(HttpStatusCode.Forbidden)
                     return@get
                 }
+
+                LogCat.d("$ip is shutting down the server")
 
                 HttpServerManager.wsSessions.forEach {
                     it.session.close()

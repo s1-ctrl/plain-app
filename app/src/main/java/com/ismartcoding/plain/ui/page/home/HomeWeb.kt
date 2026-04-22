@@ -39,6 +39,7 @@ fun HomeWeb(
         if (webEnabled) {
             mainVM.syncHttpServerState(context)
         }
+        mainVM.syncTunnelState()
     }
 
     val showSuccess = webEnabled && state == HttpServerState.ON
@@ -72,28 +73,41 @@ fun HomeWeb(
         else -> WebState.OFF
     }
 
-    AnimatedContent(
-        targetState = webState,
-        transitionSpec = {
-            fadeIn(tween(300)) togetherWith fadeOut(tween(200)) using
-                    SizeTransform(clip = false, sizeAnimationSpec = { _, _ -> tween(300) })
-        },
-        label = "web_state",
-    ) { target ->
-        HomeWebMainSection(
-            context = context,
-            navController = navController,
-            mainVM = mainVM,
-            webState = target,
-            isLoading = showLoading,
-            onRun = {
-                if (!webEnabled && !state.isProcessing()) {
-                    mainVM.enableHttpServer(context, true)
-                }
+    Column {
+        // Web Server Section
+        AnimatedContent(
+            targetState = webState,
+            transitionSpec = {
+                fadeIn(tween(300)) togetherWith fadeOut(tween(200)) using
+                        SizeTransform(clip = false, sizeAnimationSpec = { _, _ -> tween(300) })
             },
-            errorMessage = errorMessage,
-            onRestartFix = onRestartFix,
-        )
+            label = "web_state",
+        ) { target ->
+            HomeWebMainSection(
+                context = context,
+                navController = navController,
+                mainVM = mainVM,
+                webState = target,
+                isLoading = showLoading,
+                onRun = {
+                    if (!webEnabled && !state.isProcessing()) {
+                        mainVM.enableHttpServer(context, true)
+                    }
+                },
+                errorMessage = errorMessage,
+                onRestartFix = onRestartFix,
+            )
+        }
+
+        // Remote Access Section
+        if (webState == WebState.ON) {
+            VerticalSpace(dp = 24.dp)
+            HomeTunnelSection(
+                context = context,
+                mainVM = mainVM,
+                tunnelEnabled = mainVM.tunnelEnabled
+            )
+        }
     }
 }
 

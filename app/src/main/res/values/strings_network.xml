@@ -82,7 +82,11 @@
     <string name="developer_options">Developer options</string>
     <string name="adb_automation">ADB Automation</string>
     <string name="adb_token_desc">Use this token with ADB broadcasts to control PlainApp programmatically. Pass it as --es token &lt;value&gt;.</string>
-    <string name="adb_cmd_start">Start HTTP Server</string>
-    <string name="adb_cmd_stop">Stop HTTP Server</string>
-    <string name="enable_adb_token">Enable ADB token</string>
-</resources>
+    <string name="remote_access_off">Remote Access: OFF</string>
+    <string name="remote_access_on">Remote Access: ON</string>
+    <string name="remote_access_desc_off">Enable remote access to manage your phone from anywhere.</string>
+    <string name="remote_access_desc_connecting">Connecting to remote tunnel…</string>
+    <string name="remote_access_desc_on">Access your phone remotely from https://app.shakti.buzz</string>
+    <string name="enable_remote_access">Enable Remote Access</string>
+    <string name="disable_remote_access">Disable Remote Access</string>
+    <string name="connecting">Connecting…</string>
