@@ -22,6 +22,8 @@ import com.ismartcoding.plain.preferences.HttpsPortPreference
 import com.ismartcoding.plain.ui.models.MainViewModel
 import com.ismartcoding.plain.web.HttpServerManager
 import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.unit.dp
+import com.ismartcoding.plain.ui.base.VerticalSpace
 import kotlinx.coroutines.launch
 
 enum class WebState { OFF, ERROR, ON }
