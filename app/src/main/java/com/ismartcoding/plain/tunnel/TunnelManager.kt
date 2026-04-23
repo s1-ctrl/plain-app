@@ -276,4 +276,5 @@ object TunnelManager {
             else -> "Connecting..."
         }
     }
+}
 

@@ -63,7 +63,7 @@ fun HomeTunnelSection(
         else -> TunnelState.OFF
     }
 
-    val logs by TunnelManager.logs.collectAsState()
+    val logs = TunnelManager.logs.collectAsState()
     val localContext = LocalContext.current
 
     Surface(
